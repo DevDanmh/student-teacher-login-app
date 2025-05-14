@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!--Daniel Hassani-->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="jsjqfinal.css">
+        <title>Login Application Demo</title>
+    </head>
+    <body>
+        <div id="login-container">
+            <form id="login-form">
+                <h2>Login</h2>
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <button type="submit">Login</button>
+                <button id="new-user">New User</button>
+                <p id="login-message"></p>
+                <p id="date-time"></p>
+            </form>
+
+        </div>
+        <script src="Jquery/jquery-3.7.0.js"></script>
+        <script>
+
+            // checks for username availability
+            function usernameAvailable(username) {
+                return !userData.some(user => user.username === username);
+            }
+
+            $(document).ready(function() {
+
+                $('#login-form').submit(function(event) {
+                    event.preventDefault();
+                    const username = $('#username').val();
+                    const password = $('#password').val();
+
+                    // Checks user database for correct sign in values.
+                    const user = userData.find(u => u.username === username && u.password === password);
+
+                    if (user) {
+                        $('#login-message').text('Login successful').css('color', 'green');
+
+                        sessionStorage.setItem('loggedInUser', user.username);
+
+                        location.href = 'loggedin.html';
+
+                    } else if (username === "" || password === "") {
+                        $('#login-message').text('username and password cannot be empty').css('color', 'red');
+                    } else {
+                        $('#login-message').text('Invalid username or password').css('color', 'red');
+                        
+                        // Track unsuccessful login attempts so user can see them on next successful login.
+                        const existingUser = userData.find(u => u.username === username);
+                        if (existingUser) {
+                            existingUser.failedAttempts = existingUser.failedAttempts + 1;
+                        }
+                    }
+
+                    sessionStorage.setItem('userData', JSON.stringify(userData));
+                });
+                
+                // Hides the login form and displays a sign up form for a new user.
+                $('#new-user').click(function() {
+                    $('#login-message').text('');
+                    $('#login-form').hide();
+
+                    const newUserForm = `
+                        <form id="signup-form">
+                            <h2>New User Sign Up</h2>
+                            <div id="username-status"></div>
+                            <input type="text" id="new-username" placeholder="Username" required>
+                            <input type="password" id="new-password" placeholder="Password" required>
+                            <div id="dob-container">
+                                    <input type="text" id="dob-month" placeholder="MM" maxlength="2" required>
+                                    <span>/</span>
+                                    <input type="text" id="dob-day" placeholder="DD" maxlength="2" required>
+                                    <span>/</span>
+                                    <input type="text" id="dob-year" placeholder="YYYY" maxlength="4" required>
+                                </div>
+                            <select id="gender" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="preferNotToSay">Prefer Not to Say</option>
+                            </select>
+                            <div id="account">
+                            <label><input type="radio" name="accountType" value="teacher" required>Teacher</label>
+                            <label><input type="radio" name="accountType" value="student" required>Student</label>
+                            </div>
+                            <button type="submit">Sign Up</button>
+                        </form>
+                    `;
+
+                    $('#login-container').append(newUserForm);
+                });
+
+                // Submit the signup form and store the data into userData.
+                $(document).on('submit', '#signup-form', function(event) {
+                    event.preventDefault();
+
+                    const newUsername = $('#new-username').val();
+                    const newPassword = $('#new-password').val();
+                    const dob = $('#dob').val();
+                    const gender = $('#gender').val();
+                    const accountType = $('input[name="accountType"]:checked').val();
+                    const lastLogin = new Date().toLocaleString();
+                    const failedAttempts = 0;
+
+                    if (usernameAvailable(newUsername)) {
+                        userData.push({
+                        username: newUsername,
+                        password: newPassword,
+                        dob: dob,
+                        gender: gender,
+                        accountType: accountType,
+                        lastLogin: lastLogin,
+                        failedAttempts: failedAttempts
+                        });
+
+                        sessionStorage.setItem('userData', JSON.stringify(userData));
+
+                        $('#login-message').text('User created successfully').css('color', 'green');
+                        $('#signup-form').remove();
+                        $('#login-form').show();
+                    } else {
+                        $('#username-status').text('Username is already taken.').css('color', 'red');
+                    }
+                });
+
+                // Displays the current time
+                setInterval(function() {
+                    const now = new Date();
+                    $('#date-time').text(`Date & Time: ${now.toLocaleString()}`);
+                }, 1000);
+            });
+
+            const userData = JSON.parse(sessionStorage.getItem('userData')) || [];
+
+        </script>
+    </body>
+</html>
