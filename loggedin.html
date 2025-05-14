@@ -1,78 +1,87 @@
 <!DOCTYPE html>
 <!--Daniel Hassani-->
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="jsjqfinal.css">
-        <title>Login Successful</title>
-    </head>
-    <body>
-        <div id="welcome">
-            <h2 id="welcome-message"></h2>
-            <p id="last-login"></p>
-            <p id="failed-attempts"></p>
-            <img id="welcome-img" src="" alt="Welcome Picture">
-            <p id="error-message" style="color: red;"></p>
-            <div id="student-list"></div>
-            <button id="logout-button">Logout</button>
-        </div>
-        <script src="Jquery/jquery-3.7.0.js"></script>
-        <script>
-    
-                $('#logout-button').click(function() {
-                    sessionStorage.removeItem('loggedInUser');
-                    window.location.href = 'index.html';
-                });
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/login-web-app/" />
+    <link rel="stylesheet" href="jsjqfinal.css" />
+    <title>Login Successful</title>
+  </head>
+  <body>
+    <div id="welcome">
+      <h2 id="welcome-message"></h2>
+      <p id="last-login"></p>
+      <p id="failed-attempts"></p>
+      <img id="welcome-img" src="" alt="Welcome Picture" />
+      <p id="error-message" style="color: red"></p>
+      <div id="student-list"></div>
+      <button id="logout-button">Logout</button>
+    </div>
+    <script src="Jquery/jquery-3.7.0.js"></script>
+    <script>
+      $("#logout-button").click(function () {
+        sessionStorage.removeItem("loggedInUser");
+        window.location.href = "index.html";
+      });
 
-                const userData = JSON.parse(sessionStorage.getItem('userData')) || [];
-                const loggedInUser = sessionStorage.getItem('loggedInUser');
-                const user = userData.find(u => u.username === loggedInUser);
-                
-                // Set up page based on the whether a student or teacher has logged in.
-                if (user) {
-                    const welcomeMessage = user.accountType === 'teacher' ? 'Welcome Teacher' : 'Welcome Student';
-                    const welcomePicSrc = user.accountType === 'teacher' ? 'images/teacher.jpg' : 'images/student.jpg';
-    
-                    $('#welcome-message').text(welcomeMessage);
-                    $('#welcome-img').attr('src', welcomePicSrc);
-    
-                    const lastLogin = user.lastLogin || 'N/A';
-                    $('#last-login').text(`Last Login: ${lastLogin}`);
-    
-                    const currentDate = new Date().toLocaleString();
-                    user.lastLogin = currentDate;
-    
-                    // Display failed login attempts since last login and then reset it back to 0.
-                    if(user.failedAttempts){
-                        $('#failed-attempts').text('Failed login attempts since last login: ' + user.failedAttempts);
-                        user.failedAttempts = 0;
-                    }
-    
-                    sessionStorage.setItem('userData', JSON.stringify(userData));
-    
-                    // List all students so teachers can see the last time they logged in.
-                    if (user.accountType === 'teacher' && userData.find(studentExists => studentExists.accountType === 'student')){
-    
-                        const students = userData.filter(s => s.accountType === 'student')
-                        const studentList = students.map(sAccount =>{
-                            const lastLoginVal = sAccount.lastLogin;
-                            const studentListText = `${sAccount.username}: Last seen on ${lastLoginVal}`;
-                            return studentListText;
-                        });
-                        const studentListHTML = studentList.join('<br>');
-                        $('#student-list').html(studentListHTML);
-                    }
-    
-                } else {
-                    // If someone loads the page without logging in, this area will catch it and display an error message.
-                    $('#welcome-message').text('Error Logging In');
-                    $('#welcome-img').attr('src', 'images/error.jpg');
-                    $('#error-message').text('Something went wrong. Session Not Found.');
-                    $('#logout-button').text('Back to Login');
-                }
-    
-    
-        </script>
-    </body>
+      const userData = JSON.parse(sessionStorage.getItem("userData")) || [];
+      const loggedInUser = sessionStorage.getItem("loggedInUser");
+      const user = userData.find((u) => u.username === loggedInUser);
+
+      // Set up page based on the whether a student or teacher has logged in.
+      if (user) {
+        const welcomeMessage =
+          user.accountType === "teacher"
+            ? "Welcome Teacher"
+            : "Welcome Student";
+        const welcomePicSrc =
+          user.accountType === "teacher"
+            ? "images/teacher.jpg"
+            : "images/student.jpg";
+
+        $("#welcome-message").text(welcomeMessage);
+        $("#welcome-img").attr("src", welcomePicSrc);
+
+        const lastLogin = user.lastLogin || "N/A";
+        $("#last-login").text(`Last Login: ${lastLogin}`);
+
+        const currentDate = new Date().toLocaleString();
+        user.lastLogin = currentDate;
+
+        // Display failed login attempts since last login and then reset it back to 0.
+        if (user.failedAttempts) {
+          $("#failed-attempts").text(
+            "Failed login attempts since last login: " + user.failedAttempts
+          );
+          user.failedAttempts = 0;
+        }
+
+        sessionStorage.setItem("userData", JSON.stringify(userData));
+
+        // List all students so teachers can see the last time they logged in.
+        if (
+          user.accountType === "teacher" &&
+          userData.find(
+            (studentExists) => studentExists.accountType === "student"
+          )
+        ) {
+          const students = userData.filter((s) => s.accountType === "student");
+          const studentList = students.map((sAccount) => {
+            const lastLoginVal = sAccount.lastLogin;
+            const studentListText = `${sAccount.username}: Last seen on ${lastLoginVal}`;
+            return studentListText;
+          });
+          const studentListHTML = studentList.join("<br>");
+          $("#student-list").html(studentListHTML);
+        }
+      } else {
+        // If someone loads the page without logging in, this area will catch it and display an error message.
+        $("#welcome-message").text("Error Logging In");
+        $("#welcome-img").attr("src", "images/error.jpg");
+        $("#error-message").text("Something went wrong. Session Not Found.");
+        $("#logout-button").text("Back to Login");
+      }
+    </script>
+  </body>
 </html>
